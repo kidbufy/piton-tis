@@ -15,7 +15,7 @@ def makemove(move, symbol):
 # Function to check for a win
 def checkwin():
     global positions
-
+    global win_conditions
     # Define winning combinations
     win_conditions = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
@@ -39,23 +39,48 @@ def checkwin():
 # Function for AI move
 def aimove():
     global positions
-    if positions[4] == "_":
-        makemove(5, 'O')
-    elif positions[4] == "X" and all(position == "_" for position in positions[:4]) and all(position == "_" for position in positions[5:9]):
-        move = random.choice(range(2, 10, 2))
-        makemove(move, "O")
-    else:
-        winner_move = checkwinai()
-        if winner_move != 0:
-            makemove(winner_move, "O")
+    winner_move = checkwinai()
+    resume = 1
+    if winner_move != 0:
+        makemove(winner_move, "O")
+        return 1
+    for condition in win_conditions:
+        count_= 0
+        countX = 0
+        countO = 0
+        for i in condition:
+            if positions[i].count('_') == 1:
+                count_ += 1
+            elif positions[i].count('X') == 1:
+                countX += 1
+            elif positions[i].count('O') == 1:
+                countO += 1
+        if count_ == 2 and countO == 1:
+            for i in condition:
+                if positions[i] == "_":
+                    makemove(i + 1, 'O')
+                    resume = 0
+                    return 1
+                    break
+            break
+    if resume == 1:
+        if positions[4] == "_":
+            makemove(5, 'O')
+            return 1
+        elif positions[4] == "O" and all(position != "O" for position in positions[:4]) and all(position != "O" for position in positions[5:9]):
+            move = random.choice(range(2, 10, 2))
+            makemove(move, "O")
+            return 1
+        elif positions[4] == "X" and all(position != "X" for position in positions[:4]) and all(position != "X" for position in positions[5:9]):
+            move = random.choice([1,3,7,9])
+            makemove(move, "O")
+            return 1
         else:
             while True:
-                move = random.choice(range(1, 10))
-                if positions[move - 1] == '_':
-                    makemove(move, 'O')
-                    break
-                else:
-                    pass
+                a = random.choice(range(1,10))
+                if positions[a-1] == '_':
+                    makemove(a,'O')
+                    return 1
 
 # Function to check AI's winning moves and user's blocking moves
 def checkwinai():
